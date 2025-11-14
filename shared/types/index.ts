@@ -43,6 +43,14 @@ export interface PinnedLog {
   created_at: string
 }
 
+// File Tree types
+export interface FileNode {
+  path: string
+  name: string
+  type: 'file' | 'directory'
+  children?: FileNode[]
+}
+
 // API Request/Response types
 export interface CreateNoteRequest {
   repository_url: string
@@ -69,22 +77,4 @@ export interface ErrorResponse {
   code: string
   message: string
   details?: unknown
-}
-
-// Environment variables for Cloudflare Workers
-export interface Env {
-  // Bindings
-  DB: D1Database
-  KV: KVNamespace
-  R2: R2Bucket
-  SYNC_JOB: DurableObjectNamespace
-
-  // Environment variables
-  FRONTEND_URL: string
-
-  // Secrets
-  GITHUB_CLIENT_ID: string
-  GITHUB_CLIENT_SECRET: string
-  JWT_SECRET: string
-  GEMINI_API_KEY: string
 }
