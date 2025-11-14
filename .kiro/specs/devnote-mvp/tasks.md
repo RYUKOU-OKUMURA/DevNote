@@ -10,19 +10,19 @@
 
 ### 1. プロジェクトセットアップ
 
-- [ ] 1.1 (P) 開発環境を構築する
+- [x] 1.1 (P) 開発環境を構築する
   - TypeScript、Vite、Reactでフロントエンドプロジェクトを初期化する
   - ESLint、Prettierでコード品質ツールを設定する
   - TypeScript strict modeを有効化し、`any`を禁止するルールを追加する
   - _Requirements: -_
 
-- [ ] 1.2 (P) Cloudflare Workersバックエンドを初期化する
+- [x] 1.2 (P) Cloudflare Workersバックエンドを初期化する
   - Wrangler CLIでWorkers / Pages Functionsプロジェクトをセットアップする
   - `/workers/`または`/api/`ディレクトリに機能別エンドポイント構造を作成する
   - フロントエンドとバックエンド共通の型定義を`/shared/`に配置する
   - _Requirements: -_
 
-- [ ] 1.3 (P) パスエイリアスとディレクトリ構造を確立する
+- [x] 1.3 (P) パスエイリアスとディレクトリ構造を確立する
   - `@/`をフロントエンドルート、`@shared/`を共有型定義としてパスエイリアスを設定する
   - Pages、Features、Components、Libの依存方向を遵守したディレクトリを作成する
   - auth、notes、chat、memoの機能別Featuresディレクトリを準備する
