@@ -2,17 +2,113 @@
   height: 100%;
   display: flex;
   flex-direction: column;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  padding: 1rem;
+}
+
+.file-tree__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid #e0e0e0;
 }
 
 .file-tree__title {
   font-size: 1.2rem;
   font-weight: 600;
-  margin: 0 0 1rem 0;
-  padding-bottom: 0.5rem;
-  border-bottom: 2px solid #e0e0e0;
+  margin: 0;
+}
+
+.file-tree__clear-button {
+  padding: 0.25rem 0.75rem;
+  font-size: 0.875rem;
+  background-color: #f0f0f0;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.file-tree__clear-button:hover {
+  background-color: #e0e0e0;
 }
 
 .file-tree__content {
   flex: 1;
   overflow-y: auto;
+  padding-right: 0.5rem;
+}
+
+.file-tree__empty {
+  color: #888;
+  font-style: italic;
+  text-align: center;
+  padding: 2rem 0;
+}
+
+/* ファイルツリーノード */
+.file-tree__node {
+  user-select: none;
+}
+
+.file-tree__item {
+  display: flex;
+  align-items: center;
+  padding: 0.5rem;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background-color 0.15s;
+  margin-bottom: 2px;
+}
+
+.file-tree__item:hover {
+  background-color: #e8e8e8;
+}
+
+.file-tree__item--selected {
+  background-color: #d0e8ff;
+  font-weight: 500;
+}
+
+.file-tree__item--selected:hover {
+  background-color: #c0d8ef;
+}
+
+.file-tree__icon {
+  font-size: 1rem;
+  margin-right: 0.5rem;
+  flex-shrink: 0;
+}
+
+.file-tree__name {
+  font-size: 0.9rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.file-tree__children {
+  /* 子ノードのコンテナ（インデントはJSで制御） */
+}
+
+/* スクロールバーのスタイリング（オプション） */
+.file-tree__content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.file-tree__content::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.file-tree__content::-webkit-scrollbar-thumb {
+  background: #c0c0c0;
+  border-radius: 4px;
+}
+
+.file-tree__content::-webkit-scrollbar-thumb:hover {
+  background: #a0a0a0;
 }
