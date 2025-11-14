@@ -10,19 +10,19 @@
 
 ### 1. プロジェクトセットアップ
 
-- [ ] 1.1 (P) 開発環境を構築する
+- [x] 1.1 (P) 開発環境を構築する
   - TypeScript、Vite、Reactでフロントエンドプロジェクトを初期化する
   - ESLint、Prettierでコード品質ツールを設定する
   - TypeScript strict modeを有効化し、`any`を禁止するルールを追加する
   - _Requirements: -_
 
-- [ ] 1.2 (P) Cloudflare Workersバックエンドを初期化する
+- [x] 1.2 (P) Cloudflare Workersバックエンドを初期化する
   - Wrangler CLIでWorkers / Pages Functionsプロジェクトをセットアップする
   - `/workers/`または`/api/`ディレクトリに機能別エンドポイント構造を作成する
   - フロントエンドとバックエンド共通の型定義を`/shared/`に配置する
   - _Requirements: -_
 
-- [ ] 1.3 (P) パスエイリアスとディレクトリ構造を確立する
+- [x] 1.3 (P) パスエイリアスとディレクトリ構造を確立する
   - `@/`をフロントエンドルート、`@shared/`を共有型定義としてパスエイリアスを設定する
   - Pages、Features、Components、Libの依存方向を遵守したディレクトリを作成する
   - auth、notes、chat、memoの機能別Featuresディレクトリを準備する
@@ -30,19 +30,19 @@
 
 ### 2. データベーススキーマとマイグレーション
 
-- [ ] 2.1 D1データベーススキーマを定義する
+- [x] 2.1 D1データベーススキーマを定義する
   - Users、Notes、ChatMessages、PinnedLogsテーブルを作成するマイグレーションスクリプトを記述する
   - 外部キー制約（user_id、note_id）とCASCADE削除を設定する
   - ステータス列に`Indexing`、`Ready`、`Failed`、`Auth Required`のCHECK制約を適用する
   - _Requirements: 10_
 
-- [ ] 2.2 D1インデックスを最適化する
+- [x] 2.2 D1インデックスを最適化する
   - `idx_notes_user_id`、`idx_notes_status`、`idx_notes_last_accessed_at`を作成する
   - `idx_chat_messages_note_id_created_at`複合インデックスを作成する
   - `idx_pinned_logs_note_id`を作成する
   - _Requirements: 10_
 
-- [ ] 2.3 (P) KVとR2のキー設計を実装する
+- [x] 2.3 (P) KVとR2のキー設計を実装する
   - KVに`memo:{note_id}`と`session:{user_id}`のキースキーマを定義する
   - R2に`repo-cache/{note_id}/{commit_sha}.zip`と`backup/{note_id}/metadata.json`のキースキーマを定義する
   - 90日間未アクセスのアーカイブルールを確認する
