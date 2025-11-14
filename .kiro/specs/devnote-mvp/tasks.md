@@ -146,37 +146,37 @@
 
 ### 6. チャット機能
 
-- [ ] 6.1 チャット送信APIを実装する
+- [x] 6.1 チャット送信APIを実装する
   - `/api/chat` POSTエンドポイントを作成し、note_id、message、selected_files?を受け取る
   - JWTを検証し、ノート所有権をチェックする
   - ノートが`Ready`ステータスであることを確認する
   - _Requirements: 8, 11_
 
-- [ ] 6.2 Gemini File Searchでメタデータフィルタリングを実装する
+- [x] 6.2 Gemini File Searchでメタデータフィルタリングを実装する
   - 選択ファイルパス配列から`metadata_filter`パラメータを生成する
   - 選択ファイルがある場合、`file_path="src/main.js"`形式でフィルタリングする
   - 選択ファイルがない場合、File Store全体をコンテキストとして使用する
   - _Requirements: 8, 15_
 
-- [ ] 6.3 ストリーミング応答を実装する
+- [x] 6.3 ストリーミング応答を実装する
   - Gemini APIの`generateContent`を呼び出し、Server-Sent Events (SSE) でストリーミング応答を返す
   - `{"type": "chunk", "content": "..."}`、`{"type": "citation", ...}`、`{"type": "done"}`形式でイベントを送信する
   - ストリーミング中断時の再接続ロジックを実装する
   - _Requirements: 8, 12_
 
-- [ ] 6.4 引用情報を抽出して明示する
+- [x] 6.4 引用情報を抽出して明示する
   - Gemini APIから返された引用情報を`[引用: src/main.js]`形式で整形する
   - 引用元ファイル名とスニペットをCitation配列として保存する
   - 幻覚防止のため、引用情報は必ずGemini APIから取得する
   - _Requirements: 8_
 
-- [ ] 6.5 (P) チャット履歴をD1に永続化する
+- [x] 6.5 (P) チャット履歴をD1に永続化する
   - ユーザーメッセージとAI応答をChatMessagesテーブルに保存する
   - 引用情報をJSON配列としてcitations列に保存する
   - ワークスペース訪問時にチャット履歴を復元する
   - _Requirements: 8, 10_
 
-- [ ] 6.6 (P) チャット履歴取得APIを実装する
+- [x] 6.6 (P) チャット履歴取得APIを実装する
   - `/api/chat/history` GETエンドポイントを作成し、note_idをクエリパラメータで受け取る
   - 所有権を検証した後、ChatMessagesテーブルから履歴を取得する
   - created_atでソートしてレスポンスを返す

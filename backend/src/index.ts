@@ -11,6 +11,8 @@ import { handleGetNotes } from './api/notes/list'
 import { handleCreateNote } from './api/notes/create'
 import { handleDeleteNote } from './api/notes/delete'
 import { handleSyncNote } from './api/notes/sync'
+import { handleChatSend } from './api/chat/send'
+import { handleChatHistory } from './api/chat/history'
 
 export default {
 	async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
@@ -99,6 +101,14 @@ async function route(request: Request, env: Env, url: URL): Promise<Response> {
 		if (request.method === 'POST') {
 			return handleSyncNote(request, env, noteId)
 		}
+	}
+
+	// Chat routes
+	if (pathname === '/api/chat' && request.method === 'POST') {
+		return handleChatSend(request, env)
+	}
+	if (pathname === '/api/chat/history' && request.method === 'GET') {
+		return handleChatHistory(request, env)
 	}
 
 	// Health check
