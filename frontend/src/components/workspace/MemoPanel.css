@@ -1,0 +1,18 @@
+.memo-panel {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.memo-panel__title {
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin: 0 0 1rem 0;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid #e0e0e0;
+}
+
+.memo-panel__content {
+  flex: 1;
+  overflow-y: auto;
+}
