@@ -1,6 +1,8 @@
 import type { Env, ErrorResponse } from '../../../../shared/types'
+import { ErrorCodes } from '../../../../shared/types'
 import { requireAuth } from '../../lib/auth'
 import { verifyNoteOwnership } from '../../lib/jwt'
+import { logNoteDeleted } from '../../lib/audit'
 
 /**
  * Delete Note Endpoint
@@ -24,7 +26,7 @@ export async function handleDeleteNote(
     const isOwner = await verifyNoteOwnership(env.DB, userId, noteId)
     if (!isOwner) {
       const errorResponse: ErrorResponse = {
-        code: 'NOTE_NOT_FOUND',
+        code: ErrorCodes.NOTE_NOT_FOUND,
         message: 'Note not found or you do not have permission to delete it',
       }
 
@@ -39,7 +41,7 @@ export async function handleDeleteNote(
 
     if (!note) {
       const errorResponse: ErrorResponse = {
-        code: 'NOTE_NOT_FOUND',
+        code: ErrorCodes.NOTE_NOT_FOUND,
         message: 'Note not found',
       }
 
@@ -61,7 +63,7 @@ export async function handleDeleteNote(
     // These will be implemented as part of the cleanup job
 
     // Log the deletion for audit purposes
-    console.log(`Note deleted: ${noteId} by user: ${userId}`)
+    logNoteDeleted(userId, noteId)
 
     return new Response(
       JSON.stringify({
@@ -77,7 +79,7 @@ export async function handleDeleteNote(
     console.error('Delete note error:', error)
 
     const errorResponse: ErrorResponse = {
-      code: 'DELETE_NOTE_ERROR',
+      code: ErrorCodes.DELETE_NOTE_ERROR,
       message: 'Failed to delete note',
       details: error instanceof Error ? error.message : 'Unknown error',
     }

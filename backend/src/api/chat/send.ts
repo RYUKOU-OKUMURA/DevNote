@@ -1,6 +1,8 @@
 import type { Env, ChatRequest, ChatStreamChunk, ErrorResponse, Citation } from '../../../../shared/types'
+import { ErrorCodes } from '../../../../shared/types'
 import { requireAuth } from '../../lib/auth'
 import { verifyNoteOwnership } from '../../lib/jwt'
+import { handleApiError } from '../../lib/error-handling'
 
 /**
  * Chat Send Endpoint
@@ -23,7 +25,7 @@ export async function handleChatSend(request: Request, env: Env): Promise<Respon
     // Validate message
     if (!message || message.trim().length === 0) {
       const errorResponse: ErrorResponse = {
-        code: 'INVALID_MESSAGE',
+        code: ErrorCodes.INVALID_MESSAGE,
         message: 'Message cannot be empty',
       }
 
@@ -36,7 +38,7 @@ export async function handleChatSend(request: Request, env: Env): Promise<Respon
     // Check message length
     if (message.length > 5000) {
       const errorResponse: ErrorResponse = {
-        code: 'MESSAGE_TOO_LONG',
+        code: ErrorCodes.MESSAGE_TOO_LONG,
         message: 'Message exceeds maximum length of 5000 characters',
       }
 
@@ -50,7 +52,7 @@ export async function handleChatSend(request: Request, env: Env): Promise<Respon
     const isOwner = await verifyNoteOwnership(env.DB, userId, note_id)
     if (!isOwner) {
       const errorResponse: ErrorResponse = {
-        code: 'NOTE_NOT_FOUND',
+        code: ErrorCodes.NOTE_NOT_FOUND,
         message: 'Note not found or you do not have permission to access it',
       }
 
@@ -67,7 +69,7 @@ export async function handleChatSend(request: Request, env: Env): Promise<Respon
 
     if (!note) {
       const errorResponse: ErrorResponse = {
-        code: 'NOTE_NOT_FOUND',
+        code: ErrorCodes.NOTE_NOT_FOUND,
         message: 'Note not found',
       }
 
@@ -80,7 +82,7 @@ export async function handleChatSend(request: Request, env: Env): Promise<Respon
     // Check note status
     if (note.status !== 'Ready') {
       const errorResponse: ErrorResponse = {
-        code: 'NOTE_NOT_READY',
+        code: ErrorCodes.NOTE_NOT_READY,
         message: `Note is not ready. Current status: ${note.status}`,
       }
 
@@ -103,11 +105,7 @@ export async function handleChatSend(request: Request, env: Env): Promise<Respon
   } catch (error) {
     console.error('Chat send error:', error)
 
-    const errorResponse: ErrorResponse = {
-      code: 'CHAT_SEND_ERROR',
-      message: 'Failed to send message',
-      details: error instanceof Error ? error.message : 'Unknown error',
-    }
+    const errorResponse = handleApiError(error, ErrorCodes.CHAT_SEND_ERROR)
 
     return new Response(JSON.stringify(errorResponse), {
       status: 500,

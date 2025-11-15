@@ -1,4 +1,5 @@
 import type { Env, ErrorResponse } from '../../../../shared/types'
+import { ErrorCodes } from '../../../../shared/types'
 import { requireAuth } from '../../lib/auth'
 import { verifyNoteOwnership } from '../../lib/jwt'
 
@@ -24,7 +25,7 @@ export async function handleSyncNote(
     const isOwner = await verifyNoteOwnership(env.DB, userId, noteId)
     if (!isOwner) {
       const errorResponse: ErrorResponse = {
-        code: 'NOTE_NOT_FOUND',
+        code: ErrorCodes.NOTE_NOT_FOUND,
         message: 'Note not found or you do not have permission to sync it',
       }
 
@@ -41,7 +42,7 @@ export async function handleSyncNote(
 
     if (!note) {
       const errorResponse: ErrorResponse = {
-        code: 'NOTE_NOT_FOUND',
+        code: ErrorCodes.NOTE_NOT_FOUND,
         message: 'Note not found',
       }
 
@@ -72,7 +73,7 @@ export async function handleSyncNote(
       }),
     })
 
-    console.log(`Re-sync triggered for note: ${noteId} by user: ${userId}`)
+    // Note: Sync started audit log is handled in SyncJob.ts
 
     return new Response(
       JSON.stringify({
@@ -89,7 +90,7 @@ export async function handleSyncNote(
     console.error('Sync note error:', error)
 
     const errorResponse: ErrorResponse = {
-      code: 'SYNC_NOTE_ERROR',
+      code: ErrorCodes.SYNC_NOTE_ERROR,
       message: 'Failed to start re-sync',
       details: error instanceof Error ? error.message : 'Unknown error',
     }

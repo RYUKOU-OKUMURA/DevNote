@@ -1,5 +1,7 @@
 import type { Env, CreateNoteRequest, CreateNoteResponse, ErrorResponse } from '../../../../shared/types'
+import { ErrorCodes } from '../../../../shared/types'
 import { requireAuth } from '../../lib/auth'
+import { logNoteCreated } from '../../lib/audit'
 
 // GitHub repository URL pattern
 const GITHUB_REPO_PATTERN = /^https:\/\/github\.com\/([^\/]+)\/([^\/]+)\/?$/
@@ -26,7 +28,7 @@ export async function handleCreateNote(request: Request, env: Env): Promise<Resp
     const match = repository_url.match(GITHUB_REPO_PATTERN)
     if (!match) {
       const errorResponse: ErrorResponse = {
-        code: 'INVALID_REPOSITORY_URL',
+        code: ErrorCodes.INVALID_REQUEST,
         message: 'Invalid GitHub repository URL format. Expected: https://github.com/:owner/:repo',
       }
 
@@ -46,7 +48,7 @@ export async function handleCreateNote(request: Request, env: Env): Promise<Resp
 
     if (countResult && countResult.count >= 10) {
       const errorResponse: ErrorResponse = {
-        code: 'QUOTA_EXCEEDED',
+        code: ErrorCodes.QUOTA_EXCEEDED,
         message: 'Maximum number of notes (10) reached. Please delete some notes before creating new ones.',
       }
 
@@ -65,7 +67,7 @@ export async function handleCreateNote(request: Request, env: Env): Promise<Resp
 
     if (existingNote) {
       const errorResponse: ErrorResponse = {
-        code: 'NOTE_ALREADY_EXISTS',
+        code: ErrorCodes.INVALID_REQUEST,
         message: 'A note for this repository already exists',
       }
 
@@ -92,6 +94,9 @@ export async function handleCreateNote(request: Request, env: Env): Promise<Resp
     )
       .bind(noteId, userId, repository_url, repository_name, 'Indexing', now, now)
       .run()
+
+    // Log note creation
+    logNoteCreated(userId, noteId, repository_url)
 
     // Trigger sync job with Durable Objects
     const jobId = env.SYNC_JOB.idFromName(noteId)
@@ -122,7 +127,7 @@ export async function handleCreateNote(request: Request, env: Env): Promise<Resp
     console.error('Create note error:', error)
 
     const errorResponse: ErrorResponse = {
-      code: 'CREATE_NOTE_ERROR',
+      code: ErrorCodes.INTERNAL_ERROR,
       message: 'Failed to create note',
       details: error instanceof Error ? error.message : 'Unknown error',
     }
