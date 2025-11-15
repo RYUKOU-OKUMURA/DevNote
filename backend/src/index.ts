@@ -11,11 +11,13 @@ import { handleGetNotes } from './api/notes/list'
 import { handleCreateNote } from './api/notes/create'
 import { handleDeleteNote } from './api/notes/delete'
 import { handleSyncNote } from './api/notes/sync'
+import { handleGetInactiveNotes } from './api/notes/inactive'
 import { handleChatSend } from './api/chat/send'
 import { handleChatHistory } from './api/chat/history'
 import { handleGetMemo } from './api/memo/get'
 import { handleSaveMemo } from './api/memo/save'
 import { handlePinMessage } from './api/memo/pin'
+import { handleGetMetrics } from './api/metrics/usage'
 
 export default {
 	async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
@@ -88,6 +90,9 @@ async function route(request: Request, env: Env, url: URL): Promise<Response> {
 	if (pathname === '/api/notes' && request.method === 'POST') {
 		return handleCreateNote(request, env)
 	}
+	if (pathname === '/api/notes/inactive' && request.method === 'GET') {
+		return handleGetInactiveNotes(request, env)
+	}
 
 	// Note-specific routes with ID parameter
 	const noteIdMatch = pathname.match(/^\/api\/notes\/([^\/]+)$/)
@@ -123,6 +128,11 @@ async function route(request: Request, env: Env, url: URL): Promise<Response> {
 	}
 	if (pathname === '/api/memo/pin' && request.method === 'POST') {
 		return handlePinMessage(request, env)
+	}
+
+	// Metrics routes
+	if (pathname === '/api/metrics/usage' && request.method === 'GET') {
+		return handleGetMetrics(request, env)
 	}
 
 	// Health check

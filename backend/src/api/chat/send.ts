@@ -3,6 +3,7 @@ import { ErrorCodes } from '../../../../shared/types'
 import { requireAuth } from '../../lib/auth'
 import { verifyNoteOwnership } from '../../lib/jwt'
 import { handleApiError } from '../../lib/error-handling'
+import { logSearchQuery } from '../../lib/metrics'
 
 /**
  * Chat Send Endpoint
@@ -101,7 +102,7 @@ export async function handleChatSend(request: Request, env: Env): Promise<Respon
       .run()
 
     // Stream AI response
-    return streamGeminiResponse(env, note_id, message, selected_files, note.file_store_id)
+    return streamGeminiResponse(env, userId, note_id, message, selected_files, note.file_store_id)
   } catch (error) {
     console.error('Chat send error:', error)
 
@@ -119,6 +120,7 @@ export async function handleChatSend(request: Request, env: Env): Promise<Respon
  */
 async function streamGeminiResponse(
   env: Env,
+  userId: string,
   noteId: string,
   message: string,
   selectedFiles: string[] | undefined,
@@ -129,7 +131,7 @@ async function streamGeminiResponse(
   const encoder = new TextEncoder()
 
   // Start streaming in background
-  handleStreamingResponse(env, noteId, message, selectedFiles, fileStoreId, writer, encoder)
+  handleStreamingResponse(env, userId, noteId, message, selectedFiles, fileStoreId, writer, encoder)
 
   return new Response(readable, {
     headers: {
@@ -145,6 +147,7 @@ async function streamGeminiResponse(
  */
 async function handleStreamingResponse(
   env: Env,
+  userId: string,
   noteId: string,
   message: string,
   selectedFiles: string[] | undefined,
@@ -153,6 +156,9 @@ async function handleStreamingResponse(
   encoder: TextEncoder
 ): Promise<void> {
   try {
+    // Log search query metrics
+    logSearchQuery(userId, noteId, message.length)
+
     // Build metadata filter for selected files
     const metadataFilter = selectedFiles
       ? buildMetadataFilter(selectedFiles)

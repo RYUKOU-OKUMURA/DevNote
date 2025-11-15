@@ -38,7 +38,18 @@ export async function handleGetNotes(request: Request, env: Env): Promise<Respon
 
     const notes = result.results || []
 
-    return new Response(JSON.stringify(notes), {
+    // Detect inactive notes (not accessed for 90 days)
+    const ninetyDaysAgo = new Date()
+    ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 90)
+    const ninetyDaysAgoISO = ninetyDaysAgo.toISOString()
+
+    // Mark notes as inactive if they haven't been accessed in 90 days
+    const notesWithInactiveFlag = notes.map((note) => ({
+      ...note,
+      is_inactive: note.last_accessed_at < ninetyDaysAgoISO,
+    }))
+
+    return new Response(JSON.stringify(notesWithInactiveFlag), {
       status: 200,
       headers: { 'Content-Type': 'application/json' },
     })

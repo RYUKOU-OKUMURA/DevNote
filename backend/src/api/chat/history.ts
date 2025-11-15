@@ -46,6 +46,11 @@ export async function handleChatHistory(request: Request, env: Env): Promise<Res
       })
     }
 
+    // Update last_accessed_at when accessing chat history (workspace visit)
+    await env.DB.prepare('UPDATE Notes SET last_accessed_at = ? WHERE id = ?')
+      .bind(new Date().toISOString(), noteId)
+      .run()
+
     // Fetch chat history
     const result = await env.DB.prepare(
       `SELECT
