@@ -1,0 +1,271 @@
+/* NoteCard Component Styles */
+
+.note-card {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 20px;
+  position: relative;
+  transition: all 0.2s ease;
+  min-height: 180px;
+}
+
+.note-card-clickable {
+  cursor: pointer;
+}
+
+.note-card-clickable:hover {
+  border-color: #3b82f6;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1);
+  transform: translateY(-2px);
+}
+
+.note-card-deleting {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.note-card-header {
+  margin-bottom: 16px;
+}
+
+.note-card-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.note-card-title h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #111827;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.status-indexing {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.status-ready {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.status-failed {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.status-auth-required {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.note-card-body {
+  margin-bottom: 12px;
+}
+
+.note-card-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.meta-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+}
+
+.meta-label {
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.meta-value {
+  color: #111827;
+}
+
+.note-card-error {
+  margin-top: 12px;
+  padding: 12px;
+  background: #fef2f2;
+  border-left: 3px solid #ef4444;
+  border-radius: 4px;
+}
+
+.error-title {
+  margin: 0 0 4px 0;
+  font-size: 12px;
+  font-weight: 600;
+  color: #991b1b;
+}
+
+.error-message {
+  margin: 0;
+  font-size: 13px;
+  color: #dc2626;
+}
+
+.note-card-warning {
+  margin-top: 12px;
+  padding: 12px;
+  background: #fffbeb;
+  border-left: 3px solid #f59e0b;
+  border-radius: 4px;
+}
+
+.note-card-warning p {
+  margin: 0;
+  font-size: 13px;
+  color: #92400e;
+}
+
+.note-card-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.action-btn {
+  padding: 6px 16px;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.action-btn-sync {
+  background: #3b82f6;
+  color: white;
+}
+
+.action-btn-sync:hover:not(:disabled) {
+  background: #2563eb;
+}
+
+.action-btn-sync:disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
+}
+
+.action-btn-export {
+  background: #10b981;
+  color: white;
+}
+
+.action-btn-export:hover {
+  background: #059669;
+}
+
+.action-btn-delete {
+  background: #ef4444;
+  color: white;
+  margin-left: auto;
+}
+
+.action-btn-delete:hover {
+  background: #dc2626;
+}
+
+.note-card-progress {
+  margin-top: 16px;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 4px;
+  background: #e5e7eb;
+  border-radius: 2px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #3b82f6, #60a5fa);
+  animation: progress-animation 2s ease-in-out infinite;
+  width: 60%;
+}
+
+@keyframes progress-animation {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(200%);
+  }
+}
+
+.progress-text {
+  margin: 0;
+  font-size: 13px;
+  color: #6b7280;
+  text-align: center;
+}
+
+.note-card-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.95);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+}
+
+.note-card-overlay p {
+  margin: 0;
+  font-size: 14px;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .note-card {
+    padding: 16px;
+  }
+
+  .note-card-title h3 {
+    font-size: 16px;
+  }
+
+  .note-card-actions {
+    flex-wrap: wrap;
+  }
+
+  .action-btn {
+    flex: 1;
+    min-width: 80px;
+  }
+
+  .action-btn-delete {
+    flex: 1;
+    margin-left: 0;
+  }
+}
