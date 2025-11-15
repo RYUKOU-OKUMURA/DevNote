@@ -7,12 +7,14 @@ import {
   handleApiError,
 } from '../lib/error-handling'
 import { logSyncStarted, logSyncCompleted, logSyncFailed } from '../lib/audit'
+import { logFileUpload, logFileStoreCreated } from '../lib/metrics'
 
 type JobStatus = 'pending' | 'in_progress' | 'completed' | 'failed'
 
 interface SyncJobState {
   noteId: string
   repositoryUrl: string
+  userId: string
   status: JobStatus
   retryCount: number
   error?: string
@@ -68,6 +70,7 @@ export class SyncJob implements DurableObject {
       this.jobState = {
         noteId: body.noteId,
         repositoryUrl: body.repositoryUrl,
+        userId: body.userId,
         status: 'pending',
         retryCount: 0,
       }
@@ -194,7 +197,7 @@ export class SyncJob implements DurableObject {
       const { files, commitSha } = await this.fetchGitHubFiles(userId, jobState.repositoryUrl)
 
       // Step 2: Upload to Gemini File Store
-      const fileStoreId = await this.uploadToGemini(files)
+      const fileStoreId = await this.uploadToGemini(userId, jobState.noteId, files)
 
       // Step 3: Save to R2 (cache)
       await this.saveToR2(jobState.noteId, commitSha, files)
@@ -338,12 +341,23 @@ export class SyncJob implements DurableObject {
    * Upload files to Gemini File Store
    */
   private async uploadToGemini(
+    userId: string,
+    noteId: string,
     files: Array<{ path: string; content: string }>
   ): Promise<string> {
+    // Calculate total bytes transferred
+    const totalBytes = files.reduce((sum, file) => sum + file.content.length, 0)
+
+    // Log File Store creation
+    logFileStoreCreated(userId, noteId)
+
+    // Log file upload metrics
+    logFileUpload(userId, noteId, files.length, totalBytes)
+
     // TODO: Implement Gemini File Store upload (Task 5.3)
     // For now, return a mock file store ID
     const mockFileStoreId = `fs-${crypto.randomUUID()}`
-    console.log(`Uploaded ${files.length} files to Gemini File Store: ${mockFileStoreId}`)
+    console.log(`Uploaded ${files.length} files (${totalBytes} bytes) to Gemini File Store: ${mockFileStoreId}`)
     return mockFileStoreId
   }
 
