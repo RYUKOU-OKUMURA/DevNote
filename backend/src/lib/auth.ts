@@ -1,4 +1,5 @@
 import type { Env, ErrorResponse } from '../../../shared/types'
+import { ErrorCodes } from '../../../shared/types'
 import { extractJWT, verifyJWT } from './jwt'
 
 /**
@@ -30,7 +31,7 @@ export async function requireAuth(
 
   if (!userId) {
     const errorResponse: ErrorResponse = {
-      code: 'UNAUTHORIZED',
+      code: ErrorCodes.UNAUTHORIZED,
       message: 'Authentication required',
     }
 

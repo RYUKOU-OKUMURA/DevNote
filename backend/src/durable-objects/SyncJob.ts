@@ -1,5 +1,12 @@
 import type { Env } from '../../../shared/types'
 import { Octokit } from '@octokit/rest'
+import { decryptToken } from '../lib/crypto'
+import {
+  isGitHubRateLimitError,
+  createRepositoryTooLargeError,
+  handleApiError,
+} from '../lib/error-handling'
+import { logSyncStarted, logSyncCompleted, logSyncFailed } from '../lib/audit'
 
 type JobStatus = 'pending' | 'in_progress' | 'completed' | 'failed'
 
@@ -180,6 +187,9 @@ export class SyncJob implements DurableObject {
       await this.state.storage.put('jobState', jobState)
       await this.updateNoteStatus('Indexing', null)
 
+      // Log sync started
+      logSyncStarted(userId, jobState.noteId)
+
       // Step 1: Fetch files from GitHub
       const { files, commitSha } = await this.fetchGitHubFiles(userId, jobState.repositoryUrl)
 
@@ -196,11 +206,19 @@ export class SyncJob implements DurableObject {
       await this.state.storage.put('jobState', jobState)
       await this.updateNoteStatus('Ready', null, fileStoreId, commitSha)
 
+      // Log sync completed
+      logSyncCompleted(userId, jobState.noteId, files.length)
       console.log(`Sync completed for note: ${jobState.noteId}`)
     } catch (error) {
       console.error('Sync error:', error)
 
-      jobState.error = error instanceof Error ? error.message : 'Unknown error'
+      // Handle rate limit errors with better messages
+      if (isGitHubRateLimitError(error)) {
+        jobState.error = 'GitHub API rate limit exceeded. Please try again later.'
+      } else {
+        const errorResponse = handleApiError(error)
+        jobState.error = errorResponse.message
+      }
 
       // Retry logic: maximum 3 retries with exponential backoff
       if (jobState.retryCount < 3) {
@@ -218,6 +236,9 @@ export class SyncJob implements DurableObject {
         jobState.status = 'failed'
         await this.state.storage.put('jobState', jobState)
         await this.updateNoteStatus('Failed', jobState.error)
+
+        // Log sync failed
+        logSyncFailed(userId, jobState.noteId, jobState.error || 'Unknown error')
         console.error(`Sync failed for note ${jobState.noteId} after 3 retries`)
       }
     }
@@ -239,9 +260,9 @@ export class SyncJob implements DurableObject {
       throw new Error('GitHub access token not found')
     }
 
-    // TODO: Decrypt the access token
-    // For now, using it directly (implement decryption later)
-    const accessToken = user.github_access_token
+    // Decrypt the access token
+    const encryptionSecret = this.env.ENCRYPTION_SECRET || 'default-secret-key'
+    const accessToken = await decryptToken(user.github_access_token, encryptionSecret)
 
     // Parse repository URL
     const match = repositoryUrl.match(/github\.com\/([^\/]+)\/([^\/]+)/)
@@ -268,7 +289,8 @@ export class SyncJob implements DurableObject {
 
     // Check repository size (max 500MB)
     if (tree.truncated) {
-      throw new Error('Repository is too large (>500MB)')
+      const error = createRepositoryTooLargeError()
+      throw new Error(error.message)
     }
 
     // Filter and fetch file contents

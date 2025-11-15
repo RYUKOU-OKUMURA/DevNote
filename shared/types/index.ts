@@ -73,10 +73,50 @@ export interface ChatStreamChunk {
   citation?: Citation
 }
 
+// Error Codes
+export const ErrorCodes = {
+  // Authentication errors
+  UNAUTHORIZED: 'UNAUTHORIZED',
+
+  // Note errors
+  NOTE_NOT_FOUND: 'NOTE_NOT_FOUND',
+  NOTE_NOT_READY: 'NOTE_NOT_READY',
+  QUOTA_EXCEEDED: 'QUOTA_EXCEEDED',
+
+  // Sync errors
+  SYNC_NOTE_ERROR: 'SYNC_NOTE_ERROR',
+  DELETE_NOTE_ERROR: 'DELETE_NOTE_ERROR',
+  REPOSITORY_TOO_LARGE: 'REPOSITORY_TOO_LARGE',
+  GITHUB_ACCESS_DENIED: 'GITHUB_ACCESS_DENIED',
+  GITHUB_RATE_LIMIT: 'GITHUB_RATE_LIMIT',
+
+  // Chat errors
+  INVALID_MESSAGE: 'INVALID_MESSAGE',
+  MESSAGE_TOO_LONG: 'MESSAGE_TOO_LONG',
+  CHAT_SEND_ERROR: 'CHAT_SEND_ERROR',
+
+  // Gemini errors
+  GEMINI_RATE_LIMIT: 'GEMINI_RATE_LIMIT',
+  GEMINI_FILE_STORE_LIMIT: 'GEMINI_FILE_STORE_LIMIT',
+  GEMINI_API_ERROR: 'GEMINI_API_ERROR',
+
+  // Memo errors
+  MEMO_SAVE_ERROR: 'MEMO_SAVE_ERROR',
+  MEMO_GET_ERROR: 'MEMO_GET_ERROR',
+  MEMO_PIN_ERROR: 'MEMO_PIN_ERROR',
+
+  // General errors
+  INVALID_REQUEST: 'INVALID_REQUEST',
+  INTERNAL_ERROR: 'INTERNAL_ERROR',
+} as const
+
+export type ErrorCode = (typeof ErrorCodes)[keyof typeof ErrorCodes]
+
 export interface ErrorResponse {
-  code: string
+  code: ErrorCode
   message: string
   details?: unknown
+  retryAfter?: number // For rate limit errors: seconds until retry
 }
 
 // Memo types
