@@ -1,0 +1,117 @@
+.chat-message {
+  padding: 1rem;
+  margin-bottom: 1rem;
+  border-radius: 0.5rem;
+  animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.chat-message--user {
+  background-color: #eff6ff;
+  border-left: 4px solid #3b82f6;
+}
+
+.chat-message--assistant {
+  background-color: #f9fafb;
+  border-left: 4px solid #10b981;
+}
+
+.chat-message__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.chat-message__role {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #374151;
+}
+
+.chat-message__time {
+  font-size: 0.75rem;
+  color: #9ca3af;
+}
+
+.chat-message__content {
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: #1f2937;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.chat-message__citations {
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid #e5e7eb;
+}
+
+.chat-message__citations-title {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #6b7280;
+  margin-bottom: 0.5rem;
+}
+
+.chat-message__citation {
+  margin-bottom: 0.5rem;
+  padding: 0.5rem;
+  background-color: #ffffff;
+  border-radius: 0.25rem;
+  border: 1px solid #e5e7eb;
+}
+
+.chat-message__citation-path {
+  font-size: 0.75rem;
+  font-family: 'Monaco', 'Courier New', monospace;
+  color: #3b82f6;
+  font-weight: 500;
+}
+
+.chat-message__citation-snippet {
+  margin-top: 0.25rem;
+  font-size: 0.75rem;
+  color: #6b7280;
+  font-style: italic;
+}
+
+.chat-message__pin-button {
+  margin-top: 0.75rem;
+  padding: 0.375rem 0.75rem;
+  background-color: #ffffff;
+  border: 1px solid #d1d5db;
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
+  color: #6b7280;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.chat-message__pin-button:hover {
+  background-color: #f9fafb;
+  border-color: #9ca3af;
+  color: #374151;
+}
+
+/* モバイル対応 */
+@media (max-width: 768px) {
+  .chat-message {
+    padding: 0.75rem;
+  }
+
+  .chat-message__content {
+    font-size: 1rem;
+  }
+}

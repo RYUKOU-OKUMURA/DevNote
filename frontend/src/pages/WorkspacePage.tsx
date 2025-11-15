@@ -31,7 +31,12 @@ export function WorkspacePage() {
           onFileSelect={handleFileSelect}
         />
       }
-      centerPanel={<ChatPanel selectedFiles={selectedFile ? [selectedFile] : undefined} />}
+      centerPanel={
+        <ChatPanel
+          noteId={id}
+          selectedFiles={selectedFile ? [selectedFile] : undefined}
+        />
+      }
       rightPanel={<MemoPanel />}
     />
   );
