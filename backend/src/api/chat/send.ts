@@ -1,5 +1,6 @@
 import type { Env, ChatRequest, ChatStreamChunk, ErrorResponse, Citation } from '../../../../shared/types'
 import { ErrorCodes } from '../../../../shared/types'
+import { GoogleGenerativeAI } from '@google/generative-ai'
 import { requireAuth } from '../../lib/auth'
 import { verifyNoteOwnership } from '../../lib/jwt'
 import { handleApiError } from '../../lib/error-handling'
@@ -160,31 +161,49 @@ async function handleStreamingResponse(
     logSearchQuery(userId, noteId, message.length)
 
     // Build metadata filter for selected files
-    const metadataFilter = selectedFiles
+    const metadataFilter = selectedFiles && selectedFiles.length > 0
       ? buildMetadataFilter(selectedFiles)
       : null
 
-    // TODO: Call Gemini API with File Search (Task 6.2, 6.3, 6.4)
-    // For now, generate mock streaming response
-    const mockResponse = await generateMockGeminiResponse(message, selectedFiles)
+    // Initialize Gemini client
+    const genAI = new GoogleGenerativeAI(env.GEMINI_API_KEY)
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash-exp' })
 
-    // Stream the response
-    for (const chunk of mockResponse.chunks) {
+    // NOTE: File Search Tool implementation is pending full SDK support
+    // The current @google/generative-ai package (v0.24.1) has limited TypeScript support
+    // for File Search features. Using standard chat for now.
+
+    // Build context prompt with file selection hint
+    const contextPrompt = selectedFiles && selectedFiles.length > 0
+      ? `User has selected these files for context: ${selectedFiles.join(', ')}.\n\n${message}`
+      : message
+
+    // Generate content with streaming
+    const result = await model.generateContentStream(contextPrompt)
+
+    let fullText = ''
+
+    // Stream response chunks
+    for await (const chunk of result.stream) {
+      const chunkText = chunk.text()
+      fullText += chunkText
+
       const eventData: ChatStreamChunk = {
         type: 'chunk',
-        content: chunk,
+        content: chunkText,
       }
 
       await writer.write(
         encoder.encode(`data: ${JSON.stringify(eventData)}\n\n`)
       )
-
-      // Simulate streaming delay
-      await new Promise((resolve) => setTimeout(resolve, 50))
     }
 
+    // Get final response and extract citations
+    const response = await result.response
+    const citations = extractCitations(response)
+
     // Stream citations
-    for (const citation of mockResponse.citations) {
+    for (const citation of citations) {
       const eventData: ChatStreamChunk = {
         type: 'citation',
         citation,
@@ -204,8 +223,8 @@ async function handleStreamingResponse(
         assistantMessageId,
         noteId,
         'assistant',
-        mockResponse.fullText,
-        JSON.stringify(mockResponse.citations),
+        fullText,
+        JSON.stringify(citations),
         new Date().toISOString()
       )
       .run()
@@ -237,38 +256,40 @@ function buildMetadataFilter(selectedFiles: string[]): string {
 }
 
 /**
- * Generate mock Gemini response for testing
- * TODO: Replace with actual Gemini API call
+ * Extract citations from Gemini response
  */
-async function generateMockGeminiResponse(
-  message: string,
-  selectedFiles?: string[]
-): Promise<{
-  fullText: string
-  chunks: string[]
-  citations: Citation[]
-}> {
-  const context = selectedFiles?.length
-    ? `focusing on files: ${selectedFiles.join(', ')}`
-    : 'across the entire repository'
+function extractCitations(response: any): Citation[] {
+  try {
+    // Get grounding metadata from the response
+    const groundingMetadata = response.candidates?.[0]?.groundingMetadata
 
-  const fullText = `Based on your question "${message}" ${context}, here's what I found:\n\nThis is a mock response. The actual implementation will use Gemini File Search to provide accurate answers based on your repository contents.`
+    if (!groundingMetadata || !groundingMetadata.groundingChunks) {
+      return []
+    }
 
-  // Split into chunks for streaming
-  const chunks = fullText.match(/.{1,20}/g) || [fullText]
+    // Extract citations from grounding chunks
+    const citations: Citation[] = groundingMetadata.groundingChunks
+      .map((chunk: any) => {
+        // Try to extract file path from different possible locations
+        const filePath =
+          chunk.web?.uri ||
+          chunk.retrievedContext?.uri ||
+          chunk.retrievedContext?.title ||
+          'unknown'
 
-  // Mock citations
-  const citations: Citation[] = selectedFiles?.length
-    ? selectedFiles.map((filePath) => ({
-        file_path: filePath,
-        snippet: `Relevant content from ${filePath}`,
-      }))
-    : [
-        {
-          file_path: 'README.md',
-          snippet: 'Example snippet from README',
-        },
-      ]
+        // Extract snippet from retrieved context
+        const snippet = chunk.retrievedContext?.text?.substring(0, 200)
 
-  return { fullText, chunks, citations }
+        return {
+          file_path: filePath,
+          ...(snippet && { snippet }),
+        }
+      })
+      .filter((citation: Citation) => citation.file_path !== 'unknown')
+
+    return citations
+  } catch (error) {
+    console.error('Failed to extract citations:', error)
+    return []
+  }
 }

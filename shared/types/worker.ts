@@ -16,4 +16,5 @@ export interface Env {
   GITHUB_CLIENT_SECRET: string
   JWT_SECRET: string
   GEMINI_API_KEY: string
+  ENCRYPTION_SECRET: string
 }

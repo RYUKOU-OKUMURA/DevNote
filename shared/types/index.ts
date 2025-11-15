@@ -1,5 +1,8 @@
 // Shared type definitions for frontend and backend
 
+// Re-export Env type from worker.ts for backend usage
+export type { Env } from './worker'
+
 export interface User {
   id: string
   github_username: string

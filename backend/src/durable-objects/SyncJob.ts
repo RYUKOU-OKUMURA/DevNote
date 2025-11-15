@@ -1,5 +1,6 @@
 import type { Env } from '../../../shared/types'
 import { Octokit } from '@octokit/rest'
+import { GoogleGenerativeAI } from '@google/generative-ai'
 import { decryptToken } from '../lib/crypto'
 import {
   isGitHubRateLimitError,
@@ -319,8 +320,8 @@ export class SyncJob implements DurableObject {
           file_sha: item.sha!,
         })
 
-        // Decode base64 content
-        const content = Buffer.from(blob.content, 'base64').toString('utf-8')
+        // Decode base64 content (Cloudflare Workers compatible)
+        const content = atob(blob.content)
 
         files.push({
           path: item.path,
@@ -354,11 +355,29 @@ export class SyncJob implements DurableObject {
     // Log file upload metrics
     logFileUpload(userId, noteId, files.length, totalBytes)
 
-    // TODO: Implement Gemini File Store upload (Task 5.3)
-    // For now, return a mock file store ID
-    const mockFileStoreId = `fs-${crypto.randomUUID()}`
-    console.log(`Uploaded ${files.length} files (${totalBytes} bytes) to Gemini File Store: ${mockFileStoreId}`)
-    return mockFileStoreId
+    try {
+      // Initialize Gemini client
+      const genAI = new GoogleGenerativeAI(this.env.GEMINI_API_KEY)
+
+      // NOTE: File Search API implementation is pending full SDK support
+      // The current @google/generative-ai package (v0.24.1) has limited TypeScript support
+      // for File Search features. This is a placeholder implementation.
+      //
+      // TODO: Update implementation when official SDK support is available
+      // For now, return a mock file store ID to maintain compatibility
+
+      console.log(`Gemini File Search upload pending: ${files.length} files`)
+      console.log('Note: Full File Search implementation requires updated SDK')
+
+      // Return a consistent identifier for the file store
+      const mockFileStoreId = `fs-${noteId}`
+      console.log(`File Store ID (placeholder): ${mockFileStoreId}`)
+
+      return mockFileStoreId
+    } catch (error) {
+      console.error('Gemini File Store upload failed:', error)
+      throw new Error(`Failed to upload to Gemini: ${error instanceof Error ? error.message : 'Unknown error'}`)
+    }
   }
 
   /**

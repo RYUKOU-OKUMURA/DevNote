@@ -2,7 +2,7 @@
  * Error handling utilities for rate limits and API errors
  */
 
-import { ErrorResponse, ErrorCodes } from '../../../shared/types'
+import { ErrorResponse, ErrorCodes, ErrorCode } from '../../../shared/types'
 
 /**
  * Check if error is a GitHub rate limit error
@@ -105,7 +105,7 @@ export function createGitHubAccessDeniedError(): ErrorResponse {
 /**
  * Handle API error and create appropriate error response
  */
-export function handleApiError(error: unknown, defaultCode = ErrorCodes.INTERNAL_ERROR): ErrorResponse {
+export function handleApiError(error: unknown, defaultCode: ErrorCode = ErrorCodes.INTERNAL_ERROR): ErrorResponse {
   // GitHub rate limit
   if (isGitHubRateLimitError(error)) {
     const retryAfter = getRetryAfter(error)
