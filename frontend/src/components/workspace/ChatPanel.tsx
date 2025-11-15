@@ -48,6 +48,48 @@ export function ChatPanel({ noteId, selectedFiles }: ChatPanelProps) {
   });
 
   /**
+   * ピン留め処理
+   * タスク 10.4: チャットメッセージをメモパッドにピン留め
+   */
+  const handlePinMessage = useCallback(
+    async (message: ChatMessage) => {
+      if (!noteId) {
+        alert('ノートIDが指定されていません');
+        return;
+      }
+
+      try {
+        const response = await fetch('/api/memo/pin', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include',
+          body: JSON.stringify({
+            note_id: noteId,
+            message_id: message.id,
+          }),
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.message || 'Failed to pin message');
+        }
+
+        alert('メッセージをメモパッドにピン留めしました！');
+      } catch (error) {
+        console.error('Failed to pin message:', error);
+        alert(
+          `メッセージのピン留めに失敗しました: ${
+            error instanceof Error ? error.message : '不明なエラー'
+          }`
+        );
+      }
+    },
+    [noteId]
+  );
+
+  /**
    * メッセージ送信処理
    * タスク 9.4: 選択ファイルをチャットリクエストに含める
    */
@@ -122,11 +164,12 @@ export function ChatPanel({ noteId, selectedFiles }: ChatPanelProps) {
         )}
       </div>
 
-      {/* チャット履歴表示（タスク 9.2, 9.3） */}
+      {/* チャット履歴表示（タスク 9.2, 9.3, 10.4） */}
       <ChatHistory
         messages={messages}
         streamingMessage={streamingMessage}
         streamingCitations={streamingCitations}
+        onPinMessage={handlePinMessage}
       />
 
       {/* チャット入力フォーム（タスク 9.1） */}

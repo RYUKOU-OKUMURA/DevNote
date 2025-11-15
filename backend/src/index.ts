@@ -13,6 +13,9 @@ import { handleDeleteNote } from './api/notes/delete'
 import { handleSyncNote } from './api/notes/sync'
 import { handleChatSend } from './api/chat/send'
 import { handleChatHistory } from './api/chat/history'
+import { handleGetMemo } from './api/memo/get'
+import { handleSaveMemo } from './api/memo/save'
+import { handlePinMessage } from './api/memo/pin'
 
 export default {
 	async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
@@ -109,6 +112,17 @@ async function route(request: Request, env: Env, url: URL): Promise<Response> {
 	}
 	if (pathname === '/api/chat/history' && request.method === 'GET') {
 		return handleChatHistory(request, env)
+	}
+
+	// Memo routes
+	if (pathname === '/api/memo' && request.method === 'GET') {
+		return handleGetMemo(request, env)
+	}
+	if (pathname === '/api/memo' && request.method === 'POST') {
+		return handleSaveMemo(request, env)
+	}
+	if (pathname === '/api/memo/pin' && request.method === 'POST') {
+		return handlePinMessage(request, env)
 	}
 
 	// Health check

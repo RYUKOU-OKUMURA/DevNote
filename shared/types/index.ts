@@ -78,3 +78,20 @@ export interface ErrorResponse {
   message: string
   details?: unknown
 }
+
+// Memo types
+export interface Memo {
+  note_id: string
+  content: string
+  updated_at: string
+}
+
+export interface SaveMemoRequest {
+  note_id: string
+  content: string
+}
+
+export interface PinMessageRequest {
+  note_id: string
+  message_id: string
+}
