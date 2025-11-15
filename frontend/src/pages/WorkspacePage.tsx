@@ -37,7 +37,7 @@ export function WorkspacePage() {
           selectedFiles={selectedFile ? [selectedFile] : undefined}
         />
       }
-      rightPanel={<MemoPanel />}
+      rightPanel={<MemoPanel noteId={id} />}
     />
   );
 }
