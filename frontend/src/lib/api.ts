@@ -14,6 +14,7 @@ import type {
   Memo,
   PinMessageRequest,
   ErrorResponse,
+  GetFileTreeResponse,
 } from '../../../shared/types'
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8787'
@@ -124,6 +125,19 @@ export const notesApi = {
       const error: ErrorResponse = await response.json()
       throw new Error(error.message || 'Failed to sync note')
     }
+  },
+
+  /**
+   * Get file tree for a note
+   */
+  async getFileTree(noteId: string): Promise<string[]> {
+    const response = await fetch(`${API_BASE_URL}/api/notes/${noteId}/files`, {
+      method: 'GET',
+      headers: createHeaders(),
+    })
+
+    const data = await handleResponse<GetFileTreeResponse>(response)
+    return data.file_paths
   },
 }
 

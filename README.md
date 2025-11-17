@@ -10,6 +10,7 @@ DevNoteは、指定したGitHubリポジトリをAIが学習し、**Notebook LM�
 
 - **リポジトリノート管理**: GitHubリポジトリごとに独立したワークスペースを作成
 - **3カラムUI**: ファイルツリー、チャット、メモパッドを1画面に統合
+- **ファイルツリー**: リポジトリの実際のファイル構造を取得・表示
 - **AI対話**: Gemini File Searchによる高精度な回答と引用表示
 - **コンテキスト指定**: 特定ファイルを選択して質問可能
 - **永続化**: チャット履歴とメモをリポジトリごとに保存
@@ -209,6 +210,7 @@ npm test
 - `POST /api/notes` - ノート作成
 - `DELETE /api/notes/:id` - ノート削除
 - `POST /api/notes/:id/sync` - ノート再同期
+- `GET /api/notes/:id/files` - ノートのファイルツリー取得
 - `GET /api/notes/inactive` - 非アクティブノート一覧
 
 ### チャット

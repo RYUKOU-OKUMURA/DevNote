@@ -14,6 +14,7 @@ export interface Note {
   repository_name: string
   status: 'Indexing' | 'Ready' | 'Failed' | 'Auth Required'
   file_store_id?: string
+  file_paths?: string[]
   last_synced_at?: string
   last_accessed_at: string
   latest_commit_sha?: string
@@ -71,6 +72,10 @@ export interface ChatStreamChunk {
   type: 'chunk' | 'citation' | 'done'
   content?: string
   citation?: Citation
+}
+
+export interface GetFileTreeResponse {
+  file_paths: string[]
 }
 
 // Error Codes
