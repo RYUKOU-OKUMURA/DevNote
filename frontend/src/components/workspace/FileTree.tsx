@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import type { FileNode } from '@shared/types';
-import { getMockFileTree } from '@/lib/utils/fileTree';
+import { buildFileTree } from '@/lib/utils/fileTree';
+import { notesApi } from '@/lib/api';
 import './FileTree.css';
 
 export interface FileTreeProps {
@@ -33,18 +34,55 @@ export function FileTree({
   const [internalSelectedFile, setInternalSelectedFile] = useState<
     string | null
   >(selectedFile ?? null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  // ファイルツリーを取得（現在はモックデータ）
+  // ファイルツリーを取得
   useEffect(() => {
-    // TODO: 将来的にnoteIdを使ってAPIからファイルリストを取得
-    const mockTree = getMockFileTree();
-    setFileTree(mockTree);
+    if (!noteId) {
+      setFileTree([]);
+      return;
+    }
 
-    // デフォルトでルートディレクトリを展開
-    const rootDirs = mockTree
-      .filter((node) => node.type === 'directory')
-      .map((node) => node.path);
-    setExpandedDirs(new Set(rootDirs));
+    let isMounted = true;
+
+    const fetchFileTree = async () => {
+      setIsLoading(true);
+      setError(null);
+
+      try {
+        const filePaths = await notesApi.getFileTree(noteId);
+
+        if (isMounted) {
+          const tree = buildFileTree(filePaths);
+          setFileTree(tree);
+
+          // デフォルトでルートディレクトリを展開
+          const rootDirs = tree
+            .filter((node) => node.type === 'directory')
+            .map((node) => node.path);
+          setExpandedDirs(new Set(rootDirs));
+        }
+      } catch (error) {
+        console.error('Failed to fetch file tree:', error);
+        if (isMounted) {
+          setFileTree([]);
+          setError(
+            error instanceof Error ? error.message : 'ファイルツリーの取得に失敗しました'
+          );
+        }
+      } finally {
+        if (isMounted) {
+          setIsLoading(false);
+        }
+      }
+    };
+
+    fetchFileTree();
+
+    return () => {
+      isMounted = false;
+    };
   }, [noteId]);
 
   // 外部から selectedFile が変更された場合、内部状態を同期
@@ -144,7 +182,11 @@ export function FileTree({
         )}
       </div>
       <div className="file-tree__content">
-        {fileTree.length > 0 ? (
+        {isLoading ? (
+          <p className="file-tree__loading">読み込み中...</p>
+        ) : error ? (
+          <p className="file-tree__error">{error}</p>
+        ) : fileTree.length > 0 ? (
           fileTree.map((node) => renderNode(node))
         ) : (
           <p className="file-tree__empty">ファイルがありません</p>

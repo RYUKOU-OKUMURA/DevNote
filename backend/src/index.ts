@@ -12,6 +12,7 @@ import { handleCreateNote } from './api/notes/create'
 import { handleDeleteNote } from './api/notes/delete'
 import { handleSyncNote } from './api/notes/sync'
 import { handleGetInactiveNotes } from './api/notes/inactive'
+import { handleGetFiles } from './api/notes/files'
 import { handleChatSend } from './api/chat/send'
 import { handleChatHistory } from './api/chat/history'
 import { handleGetMemo } from './api/memo/get'
@@ -108,6 +109,14 @@ async function route(request: Request, env: Env, url: URL): Promise<Response> {
 		const noteId = noteSyncMatch[1]
 		if (request.method === 'POST') {
 			return handleSyncNote(request, env, noteId)
+		}
+	}
+
+	const noteFilesMatch = pathname.match(/^\/api\/notes\/([^\/]+)\/files$/)
+	if (noteFilesMatch) {
+		const noteId = noteFilesMatch[1]
+		if (request.method === 'GET') {
+			return handleGetFiles(request, env, noteId)
 		}
 	}
 

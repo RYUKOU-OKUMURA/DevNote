@@ -86,20 +86,3 @@ export function sortFileTreeRecursive(nodes: FileNode[]): FileNode[] {
   return sorted;
 }
 
-/**
- * モックデータ：開発用のサンプルファイルツリー
- */
-export function getMockFileTree(): FileNode[] {
-  return buildFileTree([
-    'README.md',
-    'package.json',
-    'src/main.ts',
-    'src/App.tsx',
-    'src/components/Button.tsx',
-    'src/components/Input.tsx',
-    'src/utils/helper.ts',
-    'src/utils/validator.ts',
-    'tests/unit/helper.test.ts',
-    'tests/integration/app.test.ts',
-  ]);
-}

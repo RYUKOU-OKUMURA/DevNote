@@ -196,6 +196,9 @@ export class SyncJob implements DurableObject {
       // Step 1: Fetch files from GitHub
       const { files, commitSha } = await this.fetchGitHubFiles(userId, jobState.repositoryUrl)
 
+      // Extract file paths list
+      const filePaths = files.map((f) => f.path)
+
       // Step 2: Upload to Gemini File Store
       const fileStoreId = await this.uploadToGemini(userId, jobState.noteId, files)
 
@@ -207,7 +210,7 @@ export class SyncJob implements DurableObject {
       jobState.fileStoreId = fileStoreId
       jobState.commitSha = commitSha
       await this.state.storage.put('jobState', jobState)
-      await this.updateNoteStatus('Ready', null, fileStoreId, commitSha)
+      await this.updateNoteStatus('Ready', null, fileStoreId, commitSha, filePaths)
 
       // Log sync completed
       logSyncCompleted(userId, jobState.noteId, files.length)
@@ -381,24 +384,28 @@ export class SyncJob implements DurableObject {
     status: string,
     errorMessage: string | null,
     fileStoreId?: string,
-    commitSha?: string
+    commitSha?: string,
+    filePaths?: string[]
   ): Promise<void> {
     const jobState = await this.state.storage.get<SyncJobState>('jobState')
     if (!jobState) return
 
     const now = new Date().toISOString()
 
-    if (fileStoreId && commitSha) {
+    if (fileStoreId && commitSha && filePaths) {
+      const filePathsJson = JSON.stringify(filePaths)
+
       await this.env.DB.prepare(
         `UPDATE Notes
         SET status = ?,
             error_message = ?,
             file_store_id = ?,
             latest_commit_sha = ?,
+            file_paths = ?,
             last_synced_at = ?
         WHERE id = ?`
       )
-        .bind(status, errorMessage, fileStoreId, commitSha, now, jobState.noteId)
+        .bind(status, errorMessage, fileStoreId, commitSha, filePathsJson, now, jobState.noteId)
         .run()
     } else {
       await this.env.DB.prepare(
